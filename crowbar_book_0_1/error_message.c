@@ -11,8 +11,8 @@ MessageFormat crb_compile_error_message_format[] = {
 
 MessageFormat crb_runtime_error_message_format[] = {
     {"dummy"},
-    {"Undefined variable ($(name))。"},
-    {"Undefined function ($(name))。"},
+    {"Undefined variable ($(name))."},
+    {"Undefined function ($(name))."},
     {"Too many arguments have been passed to the function."},
     {"Missing argument(s) for the function."},
     {"Condition expression of if statement must be boolean type."},
