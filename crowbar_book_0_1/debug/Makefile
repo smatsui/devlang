@@ -5,6 +5,8 @@ INCLUDES = -I..
 
 $(TARGET):$(OBJS)
 	ld -r -o $@ $(OBJS)
+clean:
+	rm -f $(OBJS) $(TARGET)
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $*.c
 debug.o: debug.c ../MEM.h debug.h ../DBG.h
