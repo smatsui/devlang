@@ -24,6 +24,7 @@ $(TARGET):$(OBJS)
 	$(CC) $(OBJS) -o $@ -lm
 clean:
 	rm -f $(TARGET) *.o lex.yy.c y.tab.c y.tab.h *~ y.output
+	cd ./memory; $(MAKE) clean;
 y.tab.h : crowbar.y
 	yacc -dv crowbar.y
 y.tab.c : crowbar.y
