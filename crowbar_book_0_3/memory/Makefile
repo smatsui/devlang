@@ -4,6 +4,8 @@ OBJS = memory.o storage.o
 
 $(TARGET):$(OBJS)
 	ld -r -o $@ $(OBJS)
+clean:
+	rm -f $(OBJS) $(TARGET) main.o
 testp : $(OBJS) main.o
 	$(CC) -o $@ $(OBJS) main.o
 .c.o:
