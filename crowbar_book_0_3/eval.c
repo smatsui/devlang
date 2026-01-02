@@ -495,6 +495,23 @@ multiply_string(CRB_Interpreter *inter, CRB_Value *left, CRB_Value *right,
     result->u.object = crb_create_crowbar_string_i(inter, new_str);
 }
 
+void
+substring(CRB_Interpreter *inter, CRB_Value *str_val,
+          int start, int length, CRB_Value *result)
+{
+    CRB_Char    *new_str;
+    int         i;
+
+    new_str = MEM_malloc(sizeof(CRB_Char) * (length + 1));
+    for (i = 0; i < length; i++) {
+        new_str[i] = str_val->u.object->u.string.string[start + i];
+    }
+    new_str[length] = L'\0';
+
+    result->type = CRB_STRING_VALUE;
+    result->u.object = crb_create_crowbar_string_i(inter, new_str);
+}
+
 static void
 eval_binary_expression(CRB_Interpreter *inter, CRB_LocalEnvironment *env,
                        ExpressionType operator,
@@ -877,6 +894,22 @@ eval_method_call_expression(CRB_Interpreter *inter, CRB_LocalEnvironment *env,
                                         .argument, 0);
             result.type = CRB_INT_VALUE;
             result.u.int_value = CRB_wcslen(left->u.object->u.string.string);
+        } else if (!strcmp(expr->u.method_call_expression.identifier, "substr")) {
+            CRB_Value start_index;
+            CRB_Value length;
+            check_method_argument_count(expr->line_number,
+                                        expr->u.method_call_expression
+                                        .argument, 2);
+            eval_expression(inter, env,
+                            expr->u.method_call_expression.argument
+                            ->expression);
+            eval_expression(inter, env,
+                            expr->u.method_call_expression.argument->next
+                            ->expression);
+            length = pop_value(inter);
+            start_index = pop_value(inter);
+            substring(inter, left,
+                      start_index.u.int_value, length.u.int_value, &result);
         } else {
             error_flag = CRB_TRUE;
         }
