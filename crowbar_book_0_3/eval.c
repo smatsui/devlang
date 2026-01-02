@@ -473,6 +473,28 @@ chain_string(CRB_Interpreter *inter, CRB_Value *left, CRB_Value *right,
     result->u.object = crb_create_crowbar_string_i(inter, str);
 }
 
+void
+multiply_string(CRB_Interpreter *inter, CRB_Value *left, CRB_Value *right,
+                CRB_Value *result)
+{
+    CRB_Char    *new_str;
+    int         count;
+    int         len;
+    int         i;
+
+    count = right->u.int_value;
+    len = CRB_wcslen(left->u.object->u.string.string);
+
+    new_str = MEM_malloc(sizeof(CRB_Char) * (len * count + 1));
+    for (i = 0; i < count; i++) {
+      CRB_wcscpy(new_str+len*i, left->u.object->u.string.string);
+    }
+    new_str[len * count] = L'\0';
+
+    result->type = CRB_STRING_VALUE;
+    result->u.object = crb_create_crowbar_string_i(inter, new_str);
+}
+
 static void
 eval_binary_expression(CRB_Interpreter *inter, CRB_LocalEnvironment *env,
                        ExpressionType operator,
@@ -520,6 +542,10 @@ eval_binary_expression(CRB_Interpreter *inter, CRB_LocalEnvironment *env,
     } else if (left_val->type == CRB_STRING_VALUE
                && operator == ADD_EXPRESSION) {
         chain_string(inter, left_val, right_val, &result);
+    } else if ((left_val->type == CRB_STRING_VALUE
+                && right_val->type == CRB_INT_VALUE)
+               && operator == MUL_EXPRESSION) {
+        multiply_string(inter, left_val, right_val, &result);
     } else if (left_val->type == CRB_STRING_VALUE
                && right_val->type == CRB_STRING_VALUE) {
         result.type = CRB_BOOLEAN_VALUE;
@@ -909,7 +935,7 @@ eval_inc_dec_expression(CRB_Interpreter *inter,
     CRB_Value   *operand;
     CRB_Value   result;
     int         old_value;
-    
+
     operand = get_lvalue(inter, env, expr->u.inc_dec.operand);
     if (operand->type != CRB_INT_VALUE) {
         crb_runtime_error(expr->line_number, INC_DEC_OPERAND_TYPE_ERR,
